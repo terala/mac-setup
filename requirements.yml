@@ -1,0 +1,6 @@
+---
+roles:
+  - gantsign.antigen_bundles
+
+collections:
+  - community.general

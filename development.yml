@@ -1,0 +1,63 @@
+---
+- hosts: mac
+
+  vars:
+    pkgs:
+      - dive
+      - fzf
+      - git
+      - git-lfs
+      - git-extras
+      - golang
+      - gotop
+      - python
+    casks:
+      # GPU accelerated terminal
+      - alacritty
+      # Universal Database GUI
+      - dbeaver-community
+      - docker
+      # Diagramming tool
+      - drawio
+      # Good monospace fonts for code
+      - font-go-mono-nerd-font
+      - font-iosevka-slab
+      - font-juliamono
+      # Merge tool for git
+      - meld
+      - microsoft-teams
+      # Quick way to create ubuntu VMs
+      - multipass
+      - postman
+      - slack
+      - vagrant
+      - vagrant-manager
+      # - virtualbox
+      # - virtualbox-extension-pack
+      - visual-studio-code
+
+    terminal_font:
+      family: "Iosevka Fixed Slab"
+      size: 14
+  tasks:
+    - name: Install development packages
+      homebrew:
+        name: "{{ pkgs }}"
+        state: present
+
+    - name: Install development casks
+      homebrew_cask:
+        name: "{{ casks }}"
+        state: present
+
+    - name: Deploy Alacritty configuration
+      block:
+        - name: Create alacritty config directory
+          file:
+            path: "~/.config/alacritty"
+            state: directory
+            mode: u=rwx
+        - name: Deploy alacritty config
+          template:
+            src: alacritty.yml.j2
+            dest: "~/.config/alacritty/alacritty.yml"

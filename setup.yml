@@ -1,0 +1,6 @@
+---
+- hosts: mac
+  gather_facts: yes
+
+- import_playbook: base.yml
+- import_playbook: development.yml

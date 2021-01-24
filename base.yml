@@ -1,0 +1,110 @@
+---
+- hosts: mac
+  vars:
+    pkgs:
+      - htop
+      - ranger
+      - tig
+      - tmux
+      - tmuxinator
+      - vim
+      - zsh
+    taps:
+      - homebrew/cask
+      - homebrew/cask-fonts
+    casks:
+      # amethyst and spectacl help with keyboard window arrangement.
+      - amethyst
+      - spectacle
+      # RDM allows switching between screen resolution easily.
+      - avibrazil-rdm
+      # Popular browsers
+      - firefox
+      - google-chrome
+      # GUI archiver
+      - keka
+      - vlc
+
+    graphics:
+      - handbrake
+      - gimp
+      - darktable
+
+    ohmyzsh:
+      theme: gnzh
+      plugins:
+        - ansible
+        - brew
+        - cask
+        - colorize
+        - cp
+        - direnv
+        - docker
+        - docker-compose
+        - docker-machine
+        - fzf
+        - git
+        - git-extras
+        - git-lfs
+        - git-prompt
+        - gitignore
+        - golang
+        - gradle
+        - kubectl
+        - osx
+        - tig
+        - tmux
+        - tmuxinator
+        - vagrant
+        - vagrant-prompt
+
+  tasks:
+    - name: Install base packages
+      community.general.homebrew:
+        name: "{{ pkgs }}"
+        state: present
+        update_homebrew: yes
+
+    - name: Register taps
+      community.general.homebrew_tap:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ taps }}"
+
+    - name: Install casks
+      community.general.homebrew_cask:
+        name: "{{ casks }}"
+        state: present
+
+    - name: Make zsh the default shell
+      become: yes
+      user:
+        name: "{{ ansible_user_id }}"
+        shell: "/usr/local/bin/zsh"
+
+    - name: Install OhMyZsh
+      block:
+        - name: Clone oh-my-zsh repo
+          git:
+            repo: https://github.com/ohmyzsh/ohmyzsh.git
+            dest: "~/.oh-my-zsh"
+        - name: Deploy .zshrc
+          template:
+            src: .zshrc.j2
+            dest: "~/.zshrc"
+    # - name: Install OhMyZsh
+    #   include_role:
+    #     name: gantsign.antigen_bundles
+    #   vars:
+    #     users:
+    #       - username: "{{ ansible_user_id }}"
+    #         antigen_libraries:
+    #           - name: oh-my-zsh
+    #         antigen_theme:
+    #           name: robbyrussell
+    #         antigen_bundles:
+    #           # Bundles from default oh-my-zsh repo
+    #           - name: git
+    #           - name: docker
+    #           - name: zsh-syntax-highlighting
+    #             url: zsh-usrs/zsh-syntax-highlighting

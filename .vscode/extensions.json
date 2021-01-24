@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "timonwong.ansible-autocomplete",
+        "yzhang.markdown-all-in-one",
+        "shd101wyy.markdown-preview-enhanced",
+        "davidanson.vscode-markdownlint",
+        "esbenp.prettier-vscode",
+        "wolfmah.ansible-vault-inline",
+        "haaaad.ansible"
+    ]
+}

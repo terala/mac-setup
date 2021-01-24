@@ -1,6 +1,6 @@
 ---
 roles:
   - gantsign.antigen_bundles
-
+  - lafarer.osx-defaults
 collections:
   - community.general

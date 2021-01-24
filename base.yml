@@ -92,19 +92,32 @@
           template:
             src: .zshrc.j2
             dest: "~/.zshrc"
-    # - name: Install OhMyZsh
-    #   include_role:
-    #     name: gantsign.antigen_bundles
-    #   vars:
-    #     users:
-    #       - username: "{{ ansible_user_id }}"
-    #         antigen_libraries:
-    #           - name: oh-my-zsh
-    #         antigen_theme:
-    #           name: robbyrussell
-    #         antigen_bundles:
-    #           # Bundles from default oh-my-zsh repo
-    #           - name: git
-    #           - name: docker
-    #           - name: zsh-syntax-highlighting
-    #             url: zsh-usrs/zsh-syntax-highlighting
+
+    - name: Set sane defaults for mac
+      import_role:
+        name: lafarer.osx-defaults
+      vars:
+        target_user_id: "{{ ansible_user_id }}"
+        # Configure_Keyboard: yes
+        Configure_Finder: yes
+        Configure_Bluetooth: yes
+        Configure_Dock: yes
+        # Configure_Trackpad: yes
+
+        Bluetooth_ShowInMenuBar: yes
+        Dock_Autohide: yes
+        Dock_ShowProcessIndicators: yes
+        Dock_MinEffect: "genie"
+        Finder_ShowExternalHardDrivesOnDesktop: yes
+        Finder_ShowRemovableMediaOnDesktop: yes
+        Finder_AppleShowAllExtensions: yes
+        Finder_AppleShowAllFiles: yes
+        Finder_ShowStatusBar: yes
+        # Keyboard_KeyRepeat: 0
+        # Keyboard_InitialKeyRepeat: 10
+        # Keyboard_AutomaticSpellingCorrectionEnabled: yes
+        # Trackpad_Clicking: Enabled
+        # Trackpad_Dragging: Enabled
+        # Trackpad_TrackpadHandResting: Enabled
+        # Trackpad_TrackpadRightClick: Enabled
+        # Trackpad_TrackpadScroll: Enabled

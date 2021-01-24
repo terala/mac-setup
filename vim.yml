@@ -1,0 +1,56 @@
+---
+- hosts: all
+  vars:
+    vim_dir: "{{ ansible_env.HOME }}/.vim"
+    vimrc: "{{ ansible_env.HOME }}/.vimrc"
+
+    plugins:
+      - name: vim-airline
+        url: https://github.com/vim-airline/vim-airline
+      - name: nerdtree
+        url: https://github.com/preservim/nerdtree
+      - name: fzf-vim
+        url: https://github.com/junegunn/fzf.vim
+      - name: vim-gitgutter
+        url: https://github.com/airblade/vim-gitgutter
+      - name: vim-fugitive
+        url: https://github.com/tpope/vim-fugitive
+      - name: vim-floaterm
+        url: https://github.com/voldikss/vim-floaterm
+      - name: ctrlpvim
+        url: https://github.com/ctrlpvim/ctrlp.vim.git
+      - name: vim-go
+        url: https://github.com/fatih/vim-go.git
+      - name: fzf
+        url: https://github.com/junegunn/fzf.vim.git
+
+  tasks:
+    - name: Create vim directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        recurse: no
+        mode: u=rwx
+      loop:
+        - "{{ vim_dir }}"
+        - "{{ vim_dir }}/autoload"
+        - "{{ vim_dir }}/bundle"
+
+    - name: Download pathogen
+      get_url:
+        url: "https://tpo.pe/pathogen.vim"
+        dest: "{{ vim_dir }}/autoload/pathogen.vim"
+
+    - name: Deploy plugins
+      git:
+        dest: "{{ vim_dir }}/bundle/{{ item.name }}"
+        repo: "{{ item.url }}"
+        clone: yes
+        update: yes
+        recursive: no
+      loop: "{{ plugins }}"
+
+    - name: Deploy .vimrc
+      template:
+        src: .vimrc.j2
+        dest: "{{ vimrc }}"

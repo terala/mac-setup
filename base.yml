@@ -113,6 +113,7 @@
         Finder_AppleShowAllExtensions: yes
         Finder_AppleShowAllFiles: yes
         Finder_ShowStatusBar: yes
+        # Role is broken for these domains.
         # Keyboard_KeyRepeat: 0
         # Keyboard_InitialKeyRepeat: 10
         # Keyboard_AutomaticSpellingCorrectionEnabled: yes
@@ -121,3 +122,39 @@
         # Trackpad_TrackpadHandResting: Enabled
         # Trackpad_TrackpadRightClick: Enabled
         # Trackpad_TrackpadScroll: Enabled
+
+    - name: Fix settings manually
+      osx_defaults:
+        domain: "{{ item.domain }}"
+        key: "[{ item.key }}"
+        type: "{{ item.type }}"
+        value: "{{ item.value }}"
+      loop:
+        - domain: NSGlobalDomain
+          key: InitialKeyRepeat
+          type: int
+          value: 10
+        - domain: NSGlobalDomain
+          key: KeyRepeat
+          type: int
+          value: 10
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: Clicking
+          type: int
+          value: 1
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: Dragging
+          type: int
+          value: 0
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadRightClick
+          type: int
+          value: 1
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadScroll
+          type: int
+          value: 1
+        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+          key: TrackpadHandResting
+          type: int
+          value: 1

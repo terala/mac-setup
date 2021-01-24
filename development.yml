@@ -11,6 +11,8 @@
       - golang
       - gotop
       - python
+      - kubectl
+      - helm
     casks:
       # GPU accelerated terminal
       - alacritty

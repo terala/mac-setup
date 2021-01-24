@@ -35,7 +35,6 @@
       plugins:
         - ansible
         - brew
-        - cask
         - colorize
         - cp
         - direnv
@@ -93,37 +92,7 @@
             src: .zshrc.j2
             dest: "~/.zshrc"
 
-    - name: Set sane defaults for mac
-      import_role:
-        name: lafarer.osx-defaults
-      vars:
-        target_user_id: "{{ ansible_user_id }}"
-        # Configure_Keyboard: yes
-        Configure_Finder: yes
-        Configure_Bluetooth: yes
-        Configure_Dock: yes
-        # Configure_Trackpad: yes
-
-        Bluetooth_ShowInMenuBar: yes
-        Dock_Autohide: yes
-        Dock_ShowProcessIndicators: yes
-        Dock_MinEffect: "genie"
-        Finder_ShowExternalHardDrivesOnDesktop: yes
-        Finder_ShowRemovableMediaOnDesktop: yes
-        Finder_AppleShowAllExtensions: yes
-        Finder_AppleShowAllFiles: yes
-        Finder_ShowStatusBar: yes
-        # Role is broken for these domains.
-        # Keyboard_KeyRepeat: 0
-        # Keyboard_InitialKeyRepeat: 10
-        # Keyboard_AutomaticSpellingCorrectionEnabled: yes
-        # Trackpad_Clicking: Enabled
-        # Trackpad_Dragging: Enabled
-        # Trackpad_TrackpadHandResting: Enabled
-        # Trackpad_TrackpadRightClick: Enabled
-        # Trackpad_TrackpadScroll: Enabled
-
-    - name: Fix settings manually
+    - name: Sane configuration settings
       osx_defaults:
         domain: "{{ item.domain }}"
         key: "[{ item.key }}"
@@ -158,3 +127,7 @@
           key: TrackpadHandResting
           type: int
           value: 1
+        - domain: com.apple.finder
+          key: AppleShowAllFiles
+          type: bool
+          value: true

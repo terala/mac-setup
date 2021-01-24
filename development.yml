@@ -61,3 +61,17 @@
           template:
             src: alacritty.yml.j2
             dest: "~/.config/alacritty/alacritty.yml"
+
+    - name: Configure docker
+      vars:
+        docker_conf_dir: "{{ ansible_env.HOME }}/.docker"
+      block:
+        - name: Ensure .docker is created
+          file:
+            path: "{{ docker_conf_dir }}"
+            state: directory
+            mode: u=rwx
+        - name: Deploy daemon config
+          template:
+            src: "daemon.json.j2"
+            dest: "{{ docker_conf_dir }}"

@@ -39,6 +39,87 @@
     terminal_font:
       family: "Iosevka Fixed Slab"
       size: 14
+
+    vscode_feature_set:
+      - go
+      - webservices
+      - ansible
+
+    vscode_base_extensions:
+      - general
+      - ssh
+      - git
+      - docker_k8s
+      - markdown
+      - theme
+
+    vscode_extensions:
+      general:
+        - redhat.vscode-yaml
+        - mitchdenny.ecdc
+        - DotJoshJohnson.xml
+        - esbenp.prettier-vscode
+
+      ansible:
+        - haaaad.ansible
+        - timonwong.ansible-autocomplete
+        - wolfmah.ansible-vault-inline
+
+      ssh:
+        - ms-vscode-remote.remote-containers
+        - ms-vscode-remote.remote-ssh
+        - ms-vscode-remote.remote-ssh-edit
+      git:
+        - donjayamanne.githistory
+        - eamodio.gitlens
+        - waderyan.gitblame
+
+      docker_k8s:
+        - p1c2u.docker-compose
+        - henriiik.docker-linter
+        - ms-azuretools.vscode-docker
+        - ms-kubernetes-tools.vscode-kubernetes-tools
+
+      webservices:
+        - 42Crunch.vscode-openapi
+        - mermade.openapi-lint
+        - philosowaffle.openapi-designer
+        - yokawasa.jwt-debugger
+
+      markdown:
+        - bierner.markdown-mermaid
+        - DavidAnson.vscode-markdownlint
+        - kevgo.vscode-markdown-ide
+        - jebbs.plantuml
+        - shd101wyy.markdown-preview-enhanced
+        - yzhang.markdown-all-in-one
+
+      go:
+        - golang.go
+        - hbenl.vscode-test-explorer
+        - mhutchie.git-graph
+        - premparihar.gotestexplorer
+        - soren.go-coverage-viewer
+        - ethan-reesor.vscode-go-test-adapter
+
+      webdev:
+        - VisualStudioExptTeam.vscodeintellicode
+        - msjsdiag.debugger-for-chrome
+        - Orta.vscode-jest
+        - planbcoding.vscode-react-refactor
+        - eg2.vscode-npm-script
+        - abusaidm.html-snippets
+        - christian-kohler.npm-intellisense
+        - dbaeumer.vscode-eslint
+        - Wscats.eno
+
+      python:
+        - ms-python.python
+        - ms-toolsai.jupyter
+
+      theme:
+        - PKief.material-icon-theme
+
   tasks:
     - name: Install development packages
       homebrew:
@@ -75,3 +156,30 @@
           template:
             src: "daemon.json.j2"
             dest: "{{ docker_conf_dir }}"
+
+    - name: Install Visual Studio Code Extensions
+      block:
+        - name: Create extension list to install
+          vars:
+            merged: []
+          set_fact:
+            merged: "{{ merged + vscode_extensions[ item ]}}"
+          loop: "{{ vscode_base_extensions + vscode_feature_set }}"
+        - debug:
+            var: merged
+        - name: Find installed extensions
+          command:
+            argv:
+              - code
+              - --list-extensions
+          register: installed_extensions
+        - debug:
+            var: installed_extensions
+        - name: Install extensions
+          command:
+            argv:
+              - code
+              - --install-extension
+              - "{{ item }}"
+            creates: "~/.vscode/extension/{{ item }}-*"
+          loop: "{{ merged | difference(installed_extensions.stdout_lines) }}"

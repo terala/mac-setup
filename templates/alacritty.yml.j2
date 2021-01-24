@@ -1,3 +1,12 @@
+env:
+  TERM: xterm-256color
+window:
+  dimensions:
+    columns: 100
+    lines: 50
+  decorations: full
+  startup_mode: windowed
+
 # Font configuration (changes require restart)
 font:
   # The size to use.
@@ -22,3 +31,18 @@ font:
     family: "{{ terminal_font.family }}"
     # Style can be specified to pick a specific face.
     style: Italic
+
+draw_bold_text_with_bright_colors: false
+
+background_opacity: 0.85
+
+mouse:
+  hide_when_typing: true
+
+cursor:
+  style: Beam
+  unfocussed_hollow: true
+
+dynamic_title: false
+
+live_config_reload: true

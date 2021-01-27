@@ -1,7 +1,17 @@
 ---
 - hosts: mac
-
+  gather_facts: yes
+  vars_prompt:
+    - name: user_full_name
+      prompt: What is your Full Name
+      private: no
+    - name: user_email
+      prompt: What is your email
+      private: no
   vars:
+    user_full_name:
+    user_email:
+
     pkgs:
       - dive
       - fzf
@@ -160,6 +170,18 @@
           template:
             src: alacritty.yml.j2
             dest: "~/.config/alacritty/alacritty.yml"
+
+    - name: Configure git
+      block:
+        - name: Deploy git configuration
+          template:
+            src: gitconfig.j2
+            dest: "{{ ansible_env.HOME }}/.gitconfig"
+
+        - name: Install git lfs
+          shell:
+            cmd: git lfs install
+            chdir: "{{ ansible_env.HOME }}"
 
     - name: Configure docker
       vars:

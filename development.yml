@@ -205,16 +205,12 @@
           set_fact:
             merged: "{{ merged + vscode_extensions[ item ]}}"
           loop: "{{ vscode_base_extensions + vscode_feature_set }}"
-        - debug:
-            var: merged
         - name: Find installed extensions
           command:
             argv:
               - code
               - --list-extensions
           register: installed_extensions
-        - debug:
-            var: installed_extensions
         - name: Install extensions
           command:
             argv:

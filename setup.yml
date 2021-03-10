@@ -3,5 +3,6 @@
   gather_facts: yes
 
 - import_playbook: base.yml
+- import_playbook: mac-settings.yml
 - import_playbook: development.yml
 - import_playbook: vim.yml

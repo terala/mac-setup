@@ -1,0 +1,100 @@
+---
+- hosts: mac
+  vars:
+    # Configure Finder
+    finder_domain:
+      - domain: com.apple.finder
+        key: AppleShowAllFiles
+        type: bool
+        value: true
+      - domain: com.apple.finder
+        key: ShowRemovableMediaOnDesktop
+        type: bool
+        value: true
+      - domain: com.apple.finder
+        key: ShowExternalHardDrivesOnDesktop
+        type: bool
+        value: true
+      - domain: com.apple.finder
+        key: ShowMountedServersOnDesktop
+        type: bool
+        value: true
+      - domain: com.apple.finder
+        key: AppleShowAllExtensions
+        type: bool
+        value: true
+      - domain: com.apple.finder
+        key: ShowPathbar
+        type: bool
+        value: true
+
+    # Prevent creation of .DS_Store files on network or USB drives
+    desktopservices_domain:
+      - domain: com.apple.desktopservices
+        key: DSDontWriteNetworkStores
+        type: bool
+        value: true
+      - domain: com.apple.desktopservices
+        key: DSDontWriteUSBStores
+        type: bool
+        value: true
+
+    # Dock configurations
+    dock_domain:
+      - domain: com.apple.dock
+        key: autohide
+        type: bool
+        value: true
+      - domain: com.apple.dock
+        key: show-recents
+        type: bool
+        value: true
+
+    # Trackpad configuration
+    trackpad_domain:
+      - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+        key: Clicking
+        type: int
+        value: 1
+      - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+        key: Dragging
+        type: int
+        value: 0
+      - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+        key: TrackpadRightClick
+        type: int
+        value: 1
+      - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+        key: TrackpadScroll
+        type: int
+        value: 1
+      - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+        key: TrackpadHandResting
+        type: int
+        value: 1
+
+    # Keyboard configuration
+    nsgglobal_domain:
+      - domain: NSGlobalDomain
+        key: InitialKeyRepeat
+        type: int
+        value: 10
+      - domain: NSGlobalDomain
+        key: KeyRepeat
+        type: int
+        value: 10
+
+  tasks:
+    - name: Sane configuration settings
+      osx_defaults:
+        domain: "{{ item.domain }}"
+        key: "[{ item.key }}"
+        type: "{{ item.type }}"
+        value: "{{ item.value }}"
+      loop: "{{ 
+          finder_domain
+        + desktopservices_domain
+        + dock_domain
+        + trackpad_domain
+        + nsgglobal_domain
+      }}"

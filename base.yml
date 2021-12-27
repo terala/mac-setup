@@ -1,34 +1,19 @@
 ---
 - hosts: mac
   vars:
+    taps:
+      - homebrew/cask
+      - homebrew/cask-fonts
     pkgs:
+      - exa
       - htop
-      - ranger
+      - lf
+      - openssl
       - tig
       - tmux
       - tmuxinator
       - vim
       - zsh
-    taps:
-      - homebrew/cask
-      - homebrew/cask-fonts
-    casks:
-      # amethyst and spectacl help with keyboard window arrangement.
-      - amethyst
-      - spectacle
-      # RDM allows switching between screen resolution easily.
-      - avibrazil-rdm
-      # Popular browsers
-      - firefox
-      - google-chrome
-      # GUI archiver
-      - keka
-      - vlc
-
-    graphics:
-      - handbrake
-      - gimp
-      - darktable
 
     ohmyzsh:
       theme: gnzh
@@ -49,13 +34,30 @@
         - gitignore
         - golang
         - gradle
-        - kubectl
-        - osx
+        - macos
         - tig
         - tmux
         - tmuxinator
-        - vagrant
-        - vagrant-prompt
+        - yarn
+
+    zsh:
+      znap:
+        url: https://github.com/marlonrichert/zsh-snap.git
+        path: ~/.znap
+        theme: colorbira-zsh-theme
+        plugins:
+          - chrissicool/zsh-256color
+          - CristianCantoro/colorbira-zsh-theme
+          - jonmosco/kube-ps1
+          - marlonrichert/zsh-autocomplete
+          - marlonrichert/zsh-edit
+          - mattberther/zsh-pyenv
+          - peterhurford/git-aliases.zsh
+          - tjquillan/zsh-pipenv
+          - unixorn/git-extra-commands
+          - zdharma-continuum/fast-syntax-highlighting
+          - zshzoo/zstyle-completions
+          - buonomo/yarn-completion
 
   tasks:
     - name: Install base packages
@@ -70,64 +72,30 @@
         state: present
       with_items: "{{ taps }}"
 
-    - name: Install casks
-      community.general.homebrew_cask:
-        name: "{{ casks }}"
-        state: present
-
     - name: Make zsh the default shell
       become: yes
       user:
         name: "{{ ansible_user_id }}"
         shell: "/usr/local/bin/zsh"
 
-    - name: Install OhMyZsh
+    - name: Install znap
       block:
-        - name: Clone oh-my-zsh repo
+        - name: Clone znap repo
           git:
-            repo: https://github.com/ohmyzsh/ohmyzsh.git
-            dest: "~/.oh-my-zsh"
-        - name: Deploy .zshrc
-          template:
-            src: .zshrc.j2
-            dest: "~/.zshrc"
+            repo: "{{ zsh.znap.url }}"
+            dest: "{{ zsh.znap.path }}"
 
-    - name: Sane configuration settings
-      osx_defaults:
-        domain: "{{ item.domain }}"
-        key: "[{ item.key }}"
-        type: "{{ item.type }}"
-        value: "{{ item.value }}"
-      loop:
-        - domain: NSGlobalDomain
-          key: InitialKeyRepeat
-          type: int
-          value: 10
-        - domain: NSGlobalDomain
-          key: KeyRepeat
-          type: int
-          value: 10
-        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
-          key: Clicking
-          type: int
-          value: 1
-        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
-          key: Dragging
-          type: int
-          value: 0
-        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
-          key: TrackpadRightClick
-          type: int
-          value: 1
-        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
-          key: TrackpadScroll
-          type: int
-          value: 1
-        - domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
-          key: TrackpadHandResting
-          type: int
-          value: 1
-        - domain: com.apple.finder
-          key: AppleShowAllFiles
-          type: bool
-          value: true
+        - name: Deploy .znap enabled .zshrc
+          template:
+            src: ".zshrc.j2"
+            dest: "{{ ansible_env.HOME }}/.zshrc"
+
+        - name: Deploy weekly updater
+          template:
+            src: "com.github.terala.mac-setup.znap-updater.plist.j2"
+            dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.github.terala.mac-setup.znap-updater.plist"
+
+        - name: Enable znap-updater
+          community.general.launchd:
+            name: com.github.terala.mac-setup.znap-updater
+            state: reloaded

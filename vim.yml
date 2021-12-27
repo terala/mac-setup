@@ -54,3 +54,21 @@
       template:
         src: .vimrc.j2
         dest: "{{ vimrc }}"
+
+    - name: Deploy weekly task to update vim plugins
+      block:
+        - name: Deploy shell script to update vim plugins
+          template:
+            src: "vim-plugin-updater.sh.j2"
+            dest: "{{ vim_dir }}/bundle/vim-plugin-updater.sh"
+            mode: "u=rwx,g=,o="
+
+        - name: Deploy launchd plist to update vim plugins
+          template:
+            src: "com.github.terala.mac-setup.vim-plugin-updater.plist.j2"
+            dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.github.terala.mac-setup.vim-plugin-updater.plist"
+
+        - name: Enable vim-updater
+          community.general.launchd:
+            name: com.github.terala.mac-setup.vim-plugin-updater
+            state: reloaded

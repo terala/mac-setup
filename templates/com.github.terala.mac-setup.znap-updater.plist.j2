@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.github.terala.mac-setup.znap-updater</string>
+        <key>WorkingDirectory</key>
+        <string>{{ zsh.znap.path }}</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>git</string>
+            <string>pull</string>
+        </array>
+        <!-- Run this script on Monday @ 11am -->
+        <key>StartCalendarInterval</key>
+        <dict>
+            <key>Weekday</key>
+            <integer>1</integer>
+            <key>Hour</key>
+            <integer>11</integer>
+        </dict>
+    </dict>
+</plist>

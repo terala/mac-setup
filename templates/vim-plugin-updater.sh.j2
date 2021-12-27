@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Update each plugin
+{% for pl in plugins %}
+echo "Updating plugin '{{ pl.name }}'"
+pushd "{{ pl.name }}"
+git pull
+popd
+{% endfor %}

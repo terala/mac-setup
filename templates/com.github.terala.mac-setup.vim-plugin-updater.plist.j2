@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.github.terala.mac-updater.vim-plugin-updater</string>
+        <key>WorkingDirectory</key>
+        <string>{{ vim_dir }}/bundle</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>vim-plugin-updater.sh</string>
+        </array>
+        <!-- Run this script on Monday @ 11am -->
+        <key>StartCalendarInterval</key>
+        <dict>
+            <key>Weekday</key>
+            <integer>1</integer>
+            <key>Hour</key>
+            <integer>10</integer>
+        </dict>
+    </dict>
+</plist>

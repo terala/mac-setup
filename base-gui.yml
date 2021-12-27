@@ -1,0 +1,40 @@
+---
+- hosts: mac
+  vars:
+    taps:
+      - homebrew/cask
+      - homebrew/cask-fonts
+    casks:
+      # amethyst and spectacle help with keyboard window arrangement.
+      # Use one or the other.
+      - amethyst
+      - spectacle
+      # RDM allows switching between screen resolution easily.
+      - avibrazil-rdm
+      # Popular browsers
+      - firefox
+      - google-chrome
+      # GUI archiver
+      - keka
+      - vlc
+      # Communication tools
+      - slack
+      - microsoft-teams
+      - zoom
+
+    graphics:
+      - handbrake
+      - gimp
+      - darktable
+
+  tasks:
+    - name: Register taps
+      community.general.homebrew_tap:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ taps }}"
+
+    - name: Install casks
+      community.general.homebrew_cask:
+        name: "{{ casks }}"
+        state: present

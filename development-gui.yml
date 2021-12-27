@@ -1,0 +1,194 @@
+---
+- hosts: mac
+  gather_facts: yes
+
+  vars:
+    casks:
+      # GPU accelerated terminal
+      - alacritty
+      # Universal Database GUI
+      - dbeaver-community
+      # Diagramming tool
+      - drawio
+      # Good monospace fonts for code
+      - font-go-mono-nerd-font
+      - font-iosevka-slab
+      - font-juliamono
+      # Merge tool for git
+      - meld
+      # Quick way to create ubuntu VMs
+      - multipass
+      - postman
+      - slack
+      # - virtualbox
+      # - virtualbox-extension-pack
+      - visual-studio-code
+
+    terminal_font:
+      family: "Iosevka Fixed Slab"
+      size: 14
+
+    vscode_font:
+      family: "Iosevka Slab Light"
+      size: 14
+      ligatures:
+        - zero
+        - ss01
+        - ss06
+        - ss08
+        # - "'calt' on"
+    vscode_settings:
+      "editor.cursorBlinking": "solid"
+      "editor.formatOnSave": true
+      "editor.tabCompletion": "on"
+      "workbench.fontAliasing": "antialiased"
+      "terminal.integrated.fontSize": 12
+
+    vscode_feature_set:
+      - go
+      - webservices
+      - ansible
+
+    vscode_base_extensions:
+      - general
+      - ssh
+      - git
+      - docker_k8s
+      - markdown
+      - theme
+
+    vscode_extensions:
+      general:
+        - redhat.vscode-yaml
+        - mitchdenny.ecdc
+        - DotJoshJohnson.xml
+        - esbenp.prettier-vscode
+
+      ansible:
+        - timonwong.ansible-autocomplete
+        - wolfmah.ansible-vault-inline
+
+      ssh:
+        - ms-vscode-remote.remote-containers
+        - ms-vscode-remote.remote-ssh
+        - ms-vscode-remote.remote-ssh-edit
+      git:
+        - donjayamanne.githistory
+        - eamodio.gitlens
+        - waderyan.gitblame
+
+      docker_k8s:
+        - p1c2u.docker-compose
+        - henriiik.docker-linter
+        - ms-azuretools.vscode-docker
+        - ms-kubernetes-tools.vscode-kubernetes-tools
+
+      webservices:
+        - 42Crunch.vscode-openapi
+        - mermade.openapi-lint
+        - philosowaffle.openapi-designer
+        - yokawasa.jwt-debugger
+
+      markdown:
+        - bierner.markdown-mermaid
+        - DavidAnson.vscode-markdownlint
+        - kevgo.vscode-markdown-ide
+        - jebbs.plantuml
+        - shd101wyy.markdown-preview-enhanced
+        - yzhang.markdown-all-in-one
+
+      go:
+        - golang.go
+        - hbenl.vscode-test-explorer
+        - mhutchie.git-graph
+        - premparihar.gotestexplorer
+        - soren.go-coverage-viewer
+        - ethan-reesor.vscode-go-test-adapter
+
+      webdev:
+        - VisualStudioExptTeam.vscodeintellicode
+        - msjsdiag.debugger-for-chrome
+        - Orta.vscode-jest
+        - planbcoding.vscode-react-refactor
+        - eg2.vscode-npm-script
+        - abusaidm.html-snippets
+        - christian-kohler.npm-intellisense
+        - dbaeumer.vscode-eslint
+        - Wscats.eno
+
+      python:
+        - ms-python.python
+        - ms-toolsai.jupyter
+
+      theme:
+        - PKief.material-icon-theme
+
+  tasks:
+    - name: Install development casks
+      homebrew_cask:
+        name: "{{ casks }}"
+        state: present
+
+    - name: Deploy Alacritty configuration
+      block:
+        - name: Create alacritty config directory
+          file:
+            path: "~/.config/alacritty"
+            state: directory
+            mode: u=rwx
+        - name: Deploy alacritty config
+          template:
+            src: alacritty.yml.j2
+            dest: "~/.config/alacritty/alacritty.yml"
+
+    - name: Install Visual Studio Code Extensions
+      block:
+        - name: Create extension list to install
+          vars:
+            merged: []
+          set_fact:
+            merged: "{{ merged + vscode_extensions[ item ]}}"
+          loop: "{{ vscode_base_extensions + vscode_feature_set }}"
+        - name: Find installed extensions
+          command:
+            argv:
+              - code
+              - --list-extensions
+          register: installed_extensions
+        - name: Install extensions
+          command:
+            argv:
+              - code
+              - --install-extension
+              - "{{ item }}"
+            creates: "~/.vscode/extension/{{ item }}-*"
+          loop: "{{ merged | difference(installed_extensions.stdout_lines) }}"
+
+    - name: Configure VSCode Font settings
+      vars:
+        settings_path: "~/Library/Application Support/Code/User/settings.json"
+        settings: {}
+      block:
+        - name: Read existing settings
+          slurp:
+            src: "{{ settings_path }}"
+          register: old_settings
+          ignore_errors: yes
+
+        - set_fact:
+            settings: "{{ old_settings.content | b64decode | regex_replace('\\/\\/.*\\n', ' ')  | from_json }}"
+          when: old_settings.content is defined
+
+        - name: Merge font settings
+          vars:
+            new_values:
+              "editor.fontFamily": "{{ vscode_font.family }}"
+              "editor.fontLigatures": "{{ vscode_font.ligatures  | map('quote') | join(',') }}"
+              "editor.fontSize": "{{ vscode_font.size  | int }}"
+          set_fact:
+            new_settings: "{{ settings | combine(new_values) | combine(vscode_settings) }}"
+
+        - name: Write updated settings back
+          copy:
+            content: "{{ new_settings | to_nice_json(indent=2) }}"
+            dest: "{{ settings_path }}"

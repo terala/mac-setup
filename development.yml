@@ -16,13 +16,14 @@
       - dive
       - fzf
       - git
-      - git-lfs
       - git-extras
+      - git-lfs
       - golang
       - gotop
-      - python
-      - kubectl
       - helm
+      - hyperkit
+      - kubectl
+      - python
 
   tasks:
     - name: Install development packages

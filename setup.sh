@@ -38,6 +38,9 @@ function install_ansible() {
     fi
 }
 
+echo "PATH="$PATH
+export PATH=$PATH:/opt/homebrew/bin
+
 install_xcode_commandline_tools
 install_brew
 install_ansible

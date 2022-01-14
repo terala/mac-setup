@@ -1,6 +1,7 @@
 ---
 - hosts: mac
   vars:
+    username: "{{ ansible_user_id }}"
     taps:
       - homebrew/cask
       - homebrew/cask-fonts
@@ -78,6 +79,15 @@
         name: "{{ ansible_user_id }}"
         shell: "/usr/local/bin/zsh"
 
+    - name: Allow no-prompt sudo
+      become: yes
+      copy:
+        dest: "/private/etc/sudoers.d/{{ username }}"
+        owner: root
+        mode: "u=rw,g=,o="
+        content: |
+          {{ username }}    ALL = (ALL) NOPASSWD: ALL
+
     - name: Install znap
       block:
         - name: Clone znap repo
@@ -89,6 +99,13 @@
           template:
             src: ".zshrc.j2"
             dest: "{{ ansible_env.HOME }}/.zshrc"
+
+        - name: Create LauchAgents directory
+          file:
+            path: "{{ ansible_env.HOME }}/Library/LaunchAgents"
+            state: directory
+            recurse: yes
+            mode: "u=rwx,g=,o="
 
         - name: Deploy weekly updater
           template:

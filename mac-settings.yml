@@ -98,3 +98,19 @@
         + trackpad_domain
         + nsgglobal_domain
       }}"
+
+    - name: Use subpixel font smoothing
+      osx_defaults:
+        domain: NSGlobalDomaina
+        key: CGFontRenderingFontSmoothingDisabled
+        type: bool
+        value: false
+
+    # Medium Smothing: 2, Light smoothing: 1, strong smoothing: 3
+    - name: Use medium hinting
+      osx_defaults:
+        domain: NSGlobalDomain
+        host: currentHost
+        key: AppleFontSmoothing
+        type: int
+        value: 2

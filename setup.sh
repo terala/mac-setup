@@ -55,6 +55,12 @@ echo "Installing galaxy collections"
 ansible-galaxy collection install -r requirements.yml
 
 echo "Installing tools"
-ansible-playbook --ask-become-pass setup.yml
+sudo -n true
+if [[ $? -eq 0 ]]
+then
+    ansible-playbook setup.yml
+else
+    ansible-playbook --ask-become-pass setup.yml
+fi
 
 popd

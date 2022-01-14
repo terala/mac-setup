@@ -1,17 +1,7 @@
 ---
 - hosts: mac
   gather_facts: yes
-  vars_prompt:
-    - name: user_full_name
-      prompt: What is your Full Name
-      private: no
-    - name: user_email
-      prompt: What is your email
-      private: no
   vars:
-    user_full_name:
-    user_email:
-
     pkgs:
       - dive
       - fzf
@@ -25,6 +15,30 @@
       - kubectl
       - python
 
+    global_config:
+      core.editor: "vim"
+      core.whitespace: "fix,-indent-with-non-tab,trailing-space,cr-at-eol"
+      fetch.prune: true
+      pull.rebase: true
+      color.ui: "auto"
+      color.branch.current: "yellow bold"
+      color.branch.local: "green bold"
+      color.branch.remote: "cyan bold"
+      color.diff.meta: "yellow bold"
+      color.diff.frag: "magenta bold"
+      color.diff.old: "red bold"
+      color.diff.new: "green bold"
+      color.diff.whitespace: "red reverse"
+      color.status.added: "green bold"
+      color.status.changed: "yellow bold"
+      color.status.untracked: "red bold"
+      diff.tool: "meld"
+      diff.colormoved: "zebra"
+      difftool.prompt: false
+      difftool.meld.cmd: "meld $LOCAL $REMOTE"
+      merge.tool: "meld"
+      mergetool.meld.cmd: "meld $LOCAL $MERGED $REMOTE --output $MERGED"
+
   tasks:
     - name: Install development packages
       homebrew:
@@ -33,12 +47,57 @@
 
     - name: Configure git
       block:
-        - name: Deploy git configuration
-          template:
-            src: gitconfig.j2
-            dest: "{{ ansible_env.HOME }}/.gitconfig"
+        - name: Deploy global config
+          community.general.git_config:
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
+            scope: global
+          loop: "{{ global_config | dict2items }}"
 
         - name: Install git lfs
           shell:
             cmd: git lfs install
             chdir: "{{ ansible_env.HOME }}"
+
+    - name: Configure name for git
+      vars:
+        config_name:
+        config_email:
+      block:
+        - name: Read existing config
+          community.general.git_config:
+            list_all: yes
+          register: git_existing_config
+
+        - name: Extract name and email
+          set_fact:
+            config_name: "{{ git_existing_config.config_values['user.name'] }}"
+            config_email: "{{ git_existing_config.config_values['user.email'] }}"
+
+        - name: Ask for Git Name
+          pause:
+            prompt: "Plase enter your full name for git"
+            echo: yes
+          register: full_name
+          when: config_name | length == 0
+
+        - name: Set git Name
+          community.general.git_config:
+            name: "user.name"
+            value: "{{ full_name }}"
+            scope: global
+          when: config_email | length == 0
+
+        - name: Ask for Git email
+          pause:
+            prompt: "Please enter your Email for git"
+            echo: yes
+          register: email
+          when: config_email | length == 0
+
+        - name: Set git email
+          community.general.git_config:
+            name: "user.email"
+            value: "{{ email }}"
+            scope: global
+          when: config_email | length == 0

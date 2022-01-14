@@ -45,7 +45,8 @@ setopt share_history # better concurrent shell history sharing
 setopt no_rm_star_silent # confirm on `rm *` (default, but let's be safe)
 setopt prompt_cr prompt_sp # don't clobber output without trailing newlines
 setopt rm_star_wait # wait after confirmation on `rm *` to allow ^C
-setopt auto_menu # automatically use menu completion
+#setopt auto_menu # automatically use menu completion
+setopt menu_complete
 setopt auto_list # automatically list choices on ambiguous completion
 
 # # see zshmodules(1)
@@ -62,7 +63,10 @@ autoload -Uz zmathfunc; zmathfunc # better mathematical evaluation
 autoload -Uz zmv # like mv, but uses patterns (`zmv '(*).lis' '$1.txt'`)
 
 # Complete with nicer menu system
-# zstyle ':completion:*' menu select=long
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' menu select
+zstyle ':completion:*' complete-options true
+zstyle ':completion:*' file-sort dummyvalue
 
 # Prompt Theme
 znap prompt {{ zsh.znap.theme }}

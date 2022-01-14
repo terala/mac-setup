@@ -65,7 +65,7 @@
         - esbenp.prettier-vscode
 
       ansible:
-        - timonwong.ansible-autocomplete
+        - redhat.ansible
         - wolfmah.ansible-vault-inline
 
       ssh:

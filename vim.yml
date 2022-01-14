@@ -63,6 +63,13 @@
             dest: "{{ vim_dir }}/bundle/vim-plugin-updater.sh"
             mode: "u=rwx,g=,o="
 
+        - name: Create LaunchAgents directory
+          file:
+            path: "{{ ansible_env.HOME }}/Library/LaunchAgents"
+            state: directory
+            recurse: yes
+            mode: "u=rwx,g=,o="
+
         - name: Deploy launchd plist to update vim plugins
           template:
             src: "com.github.terala.mac-setup.vim-plugin-updater.plist.j2"

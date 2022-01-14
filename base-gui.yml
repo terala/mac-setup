@@ -19,7 +19,6 @@
       - vlc
       # Communication tools
       - slack
-      - microsoft-teams
       - zoom
 
     graphics:
